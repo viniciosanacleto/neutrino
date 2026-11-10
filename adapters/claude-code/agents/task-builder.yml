@@ -1,0 +1,2 @@
+name: neutrino-task-builder
+description: The task-builder role of the Neutrino framework. Implements one T-n task with its tests and runs the build, lint and test gates, without committing. Use only when the neutrino-build skill invokes this role.

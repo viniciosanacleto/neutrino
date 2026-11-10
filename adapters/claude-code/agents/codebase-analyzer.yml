@@ -1,0 +1,2 @@
+name: neutrino-codebase-analyzer
+description: The codebase-analyzer role of the Neutrino framework. Creates and updates .neutrino/context/ (CODEBASE.md, STACK.md, CONVENTIONS.md) from the project's code, in create or incremental mode. Use only when a Neutrino skill (neutrino-init or neutrino-close) invokes this role.

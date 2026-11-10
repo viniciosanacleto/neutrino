@@ -1,0 +1,2 @@
+name: neutrino-planner
+description: The planner role of the Neutrino framework. Reads an intent's documents and generates the T-n tasks, DEPEND.md and PROGRESS.md in plan/. Use only when the neutrino-plan skill invokes this role.

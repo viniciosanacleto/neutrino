@@ -1,0 +1,3 @@
+name: neutrino-reviewer
+description: The reviewer role of the Neutrino framework. Checks the changes of one T-n task against the acceptance criteria and the requirements before the commit and returns a verdict. Read-only. Use only when the neutrino-build skill invokes this role.
+tools: Read, Grep, Glob, Bash
