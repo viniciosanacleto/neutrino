@@ -34,7 +34,7 @@ Phases 2 to 5 are optional: during Initiation the agent proposes which ones make
 Clone this repository anywhere on your machine:
 
 ```bash
-git clone <this-repository-url> ~/tools/neutrino
+git clone https://github.com/viniciosanacleto/neutrino.git ~/tools/neutrino
 ```
 
 Then install it into the project you are going to work on. Installation is the same for new and existing projects; what changes is what happens in the first intent (see [New project](#new-project-greenfield) and [Existing project](#existing-project-brownfield)).
