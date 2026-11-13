@@ -8,7 +8,7 @@ Versions follow the `<major>.<minor>.<fix>` format:
 - **minor**: new features that keep compatibility (new skills, agents, phases or options).
 - **fix**: corrections that do not change behavior on purpose (bugs, typos, documentation).
 
-## [Unreleased]
+## [1.1.0] - 2026-11-12
 
 ### Added
 
