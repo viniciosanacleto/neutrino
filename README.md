@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="Neutrino logo" width="200">
+</p>
+
 # Neutrino
 
 Neutrino is a package of skills and agents that takes an idea to committed, tested code in a short cycle. It targets two scenarios: building features in existing projects (brownfield) and building MVPs (greenfield).
