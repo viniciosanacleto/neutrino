@@ -16,7 +16,7 @@ Every Neutrino skill reads this file before acting. It gathers what applies to a
 
 | Path | Content |
 | --- | --- |
-| `KIT/references/` | Shared rules (this file, `loop.md`, `questions.md`, `conflicts.md`, `audit.md`, `commits.md`). |
+| `KIT/references/` | Shared rules (this file, `loop.md`, `questions.md`, `conflicts.md`, `audit.md`, `commits.md`) and `out-audit.md`, for changes made outside an intent. |
 | `KIT/templates/` | Document templates. Copy the structure; do not rename fields. |
 | `KIT/agents/` | The prompt for each agent role (`codebase-analyzer`, `planner`, `task-builder`, `reviewer`). |
 
@@ -28,6 +28,8 @@ Every Neutrino skill reads this file before acting. It gathers what applies to a
 │   ├── CODEBASE.md
 │   ├── STACK.md
 │   └── CONVENTIONS.md
+├── out-audit/               # changes made outside an intent, one file per day (see out-audit.md)
+│   └── out-audit-YYYY-MM-DD.md
 └── intents/
     └── NNN-slug/            # one folder per intent (e.g. 003-social-login)
         ├── STATE.md
@@ -106,6 +108,7 @@ No step depends on a harness-exclusive feature. Use the feature when it exists a
 | Subagents | The role runs in an isolated context (in Claude Code, `neutrino-<role>`) | Read `KIT/agents/<role>.md` and perform the role yourself |
 | Isolated workspaces | Tasks in the same wave run in parallel | Sequential execution |
 | Remote repository access | Closing opens the PR | Closing shows the PR text for the user to paste |
+| Hooks | A hook reminds you to record changes made outside an intent | Follow `out-audit.md` yourself after such a change |
 
 ## Date and time
 

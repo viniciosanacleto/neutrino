@@ -59,14 +59,17 @@ This creates, inside the project:
 │   ├── neutrino-plan/
 │   ├── neutrino-build/
 │   └── neutrino-close/
-└── agents/
-    ├── neutrino-codebase-analyzer.md
-    ├── neutrino-planner.md
-    ├── neutrino-task-builder.md
-    └── neutrino-reviewer.md
+├── agents/
+│   ├── neutrino-codebase-analyzer.md
+│   ├── neutrino-planner.md
+│   ├── neutrino-task-builder.md
+│   └── neutrino-reviewer.md
+├── hooks/
+│   └── neutrino-out-audit.sh  # records changes made outside Neutrino
+└── settings.json              # the hook is registered here
 ```
 
-Skills and subagents the project already had in `.claude/` are left untouched. Restart Claude Code in the project so it loads the skills.
+Skills, subagents, hooks and settings the project already had in `.claude/` are left untouched: the installer only adds its own hook entries to `settings.json` (this step needs `python3`; without it, the installer prints the block to paste). Use `--no-hooks` to install without the hook (see [Changes outside Neutrino](#changes-outside-neutrino)). Restart Claude Code in the project so it loads the skills.
 
 To make Neutrino available in all your projects, install it into `~/.claude`:
 
@@ -99,6 +102,7 @@ Without native harness features, Neutrino still works through fallbacks:
 | Isolated workspaces | Tasks in the same wave run in parallel | Sequential execution |
 | Commands | `/neutrino new` | You ask for "neutrino new ..." |
 | Remote repository access | Closing opens the PR | Closing shows the PR text |
+| Hooks | Changes outside Neutrino are always recorded | The agent records them by following a rule in `AGENTS.md` |
 
 ### Updating and uninstalling
 
@@ -200,6 +204,24 @@ If a task fails the gates three times in a row, or depends on something the docu
 
 To find a task's commit: `git log --grep "T-4"`.
 
+### Changes outside Neutrino
+
+You can still ask the agent for a change without starting an intent. When Neutrino is installed and the current branch is not an intent branch (`neutrino/NNN-slug`), the agent ends the turn by:
+
+- appending an entry to `.neutrino/out-audit/out-audit-<YYYY-MM-DD>.md` (one file per day) with what you asked for, what was done and the files changed;
+- updating `.neutrino/context/` when the change makes it necessary (a new module, a new dependency, a changed command or convention).
+
+```markdown
+**Timestamp**: 2026-11-12 14:32:07
+**Branch**: main
+**Request**: Add a --verbose flag to the export command
+**Changes**: Added the flag to the CLI parser and passed it down to the exporter, which now logs each file written.
+**Files**: src/cli/export.ts, src/exporter/index.ts, tests/cli/export.test.ts
+**Context**: -
+```
+
+In Claude Code this is enforced by a hook that compares the working tree at the start and at the end of each turn. In other harnesses it is a rule in the `AGENTS.md` block. The agent does not commit these files: they stay in the working tree for you to commit along with the change.
+
 ## What Neutrino creates in the project
 
 ```text
@@ -208,6 +230,8 @@ To find a task's commit: `git log --grep "T-4"`.
 │   ├── CODEBASE.md
 │   ├── STACK.md
 │   └── CONVENTIONS.md
+├── out-audit/                # changes made outside an intent, one file per day
+│   └── out-audit-2026-11-12.md
 └── intents/
     └── 001-social-login/
         ├── STATE.md          # current phase and round; this is where the agent resumes from
@@ -233,7 +257,7 @@ neutrino/
 ├── agents/            # one .md per agent role (prompt, inputs and outputs)
 ├── templates/         # document templates (question, audit entry, STATE, FR, NFR, task, PROGRESS...)
 ├── adapters/
-│   ├── claude-code/   # subagent frontmatter and installer
+│   ├── claude-code/   # subagent frontmatter, out-audit hook and installer
 │   └── generic/       # AGENTS.md and installer for harnesses without native support
 └── docs/
     └── specification.md

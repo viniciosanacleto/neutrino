@@ -10,6 +10,12 @@ Versions follow the `<major>.<minor>.<fix>` format:
 
 ## [Unreleased]
 
+### Added
+
+- Out-audit: changes made outside an intent (on a branch that is not `neutrino/NNN-slug`) are recorded in `.neutrino/out-audit/out-audit-<YYYY-MM-DD>.md`, and `.neutrino/context/` is updated when the change makes it necessary. Rules in `skills/neutrino/references/out-audit.md`, entry template in `templates/out-audit-entry.md`.
+- Claude Code adapter: the installer copies the out-audit hook to `.claude/hooks/neutrino-out-audit.sh` and registers it in `.claude/settings.json` (`UserPromptSubmit` and `Stop`). New `--no-hooks` option; `--uninstall` removes the hook.
+- Generic adapter: the `AGENTS.md` block has a rule for recording changes made outside an intent.
+
 ## [1.0.0] - 2026-11-10
 
 First release.

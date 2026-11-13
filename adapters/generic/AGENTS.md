@@ -27,3 +27,4 @@ Rules that always apply:
 - Without isolated workspaces, Construction is sequential.
 - Without remote repository access, Closing shows the PR text for the user to paste.
 - If an intent is in progress in `.neutrino/intents/`, read its `STATE.md` before touching the related code.
+- When you change project files outside an intent (the current branch is not `neutrino/NNN-slug`), before ending the turn follow `{{SKILLS_DIR}}/neutrino/references/out-audit.md`: record the change in `.neutrino/out-audit/out-audit-<YYYY-MM-DD>.md` and update `.neutrino/context/` if the change makes it necessary.

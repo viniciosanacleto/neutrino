@@ -271,6 +271,28 @@ Every decision made during the intent becomes an entry in the intent's `AUDIT.md
 
 Fields with no content hold `-`. The timestamp uses the local time zone of the user's machine. The **Actor** and **Ref** fields are new compared to the original version: the first separates what the user decided from what the agent decided on its own, and the second links the entry to the traceable IDs.
 
+### Changes outside an intent (out-audit)
+
+The user can ask the agent for a change without starting an intent. When Neutrino is installed and the current branch is not an intent branch (`neutrino/NNN-slug`), the agent ends the turn by doing two things:
+
+1. It appends an entry to `.neutrino/out-audit/out-audit-<YYYY-MM-DD>.md`, one file per day, append-only, in the same style as `AUDIT.md`.
+2. It updates `.neutrino/context/`, if it exists, when the change makes one of its files wrong or incomplete (modules and entry points, stack and commands, conventions). The last analyzed commit is not changed, so the next incremental analysis still reviews the same diff.
+
+```markdown
+**Timestamp**: [YYYY-MM-DD HH:mm:ss]
+**Branch**: [Current branch]
+**Request**: [What the user asked for]
+**Changes**: [What was done and why, in two or three sentences]
+**Files**: [Paths created, changed or removed]
+**Context**: [Context files updated and what changed in them, or -]
+
+---
+```
+
+The agent does not commit these files; they stay in the working tree for the user to commit along with the change. On an intent branch nothing is recorded here: the intent's `AUDIT.md` is the record.
+
+In Claude Code this is enforced by a hook: it takes a fingerprint of the working tree when the user sends a prompt and compares it when the agent is about to stop; if the tree changed, the agent is sent back once to write the entry. In harnesses without hooks, the same rule is in the `AGENTS.md` block.
+
 ## Folder structure
 
 ```text
@@ -279,6 +301,8 @@ Fields with no content hold `-`. The timestamp uses the local time zone of the u
 │   ├── CODEBASE.md
 │   ├── STACK.md
 │   └── CONVENTIONS.md
+├── out-audit/
+│   └── out-audit-2026-11-12.md
 └── intents/
     └── 001-slug/
         ├── STATE.md
@@ -316,6 +340,7 @@ Folders for skipped phases are not created.
 | `context/CODEBASE.md` | Code map: modules, responsibilities, entry points and the last analyzed commit. |
 | `context/STACK.md` | Languages, frameworks, database, infrastructure and test tooling in use. |
 | `context/CONVENTIONS.md` | Code patterns, naming, folder and test organization. |
+| `out-audit/out-audit-<YYYY-MM-DD>.md` | Changes made outside an intent, one file per day, append-only. |
 | `intents/NNN-slug/` | One folder per intent, numbered in sequence with three digits. |
 | `STATE.md` | Current phase and round, profile, planned and skipped phases, overall status of the intent. |
 | `AUDIT.md` | All of the intent's audit entries. |
@@ -362,7 +387,7 @@ neutrino/
 ├── agents/            # one .md per agent role (prompt + inputs + outputs)
 ├── templates/         # question, audit entry, STATE, FR, NFR, task, PROGRESS
 └── adapters/
-    ├── claude-code/   # subagents, commands and installation
+    ├── claude-code/   # subagents, commands, out-audit hook and installation
     └── generic/       # AGENTS.md and instructions for harnesses without native support
 ```
 
@@ -377,6 +402,7 @@ The skills use the `SKILL.md` format (frontmatter with `name` and `description`,
 | Isolated workspaces | Tasks in a wave run in parallel | Sequential execution |
 | Commands (slash commands) | `/neutrino new`, `/neutrino resume` | The user asks by the skill's name |
 | Remote repository access | Closing opens the PR | Closing shows the PR text for the user to paste |
+| Hooks | Changes outside an intent are detected and the agent is sent back to record them | The agent records them by following the rule in `AGENTS.md` |
 
 The state lives entirely in `.neutrino/` and in git, never in the harness's memory. This makes it possible to start an intent in one harness and finish it in another.
 
