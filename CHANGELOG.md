@@ -29,5 +29,5 @@ First release.
 - Installers for Claude Code (per project or `--global`) and for harnesses that read an `AGENTS.md`.
 - README with installation and usage instructions for new (greenfield) and existing (brownfield) projects.
 
-[Unreleased]: https://github.com/viniciosanacleto/neutrino/compare/v1.0.0...HEAD
+[1.1.0]: https://github.com/viniciosanacleto/neutrino/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/viniciosanacleto/neutrino/releases/tag/v1.0.0
