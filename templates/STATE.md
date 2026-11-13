@@ -4,6 +4,8 @@
 - **Status**: [In progress | Done]
 - **Profile**: [Backend feature | Frontend feature | Full-stack feature | MVP]
 - **Branch**: neutrino/[NNN-slug]
+- **Base branch**: [branch the intent started from; target of the pull request]
+- **Workspace**: [Worktree (.neutrino/worktrees/NNN-slug) | Branch]
 - **Current phase**: [phase name]
 - **Current round**: [n | -]
 - **Reopening**: [- | origin: <phase> (round n) → reopened: <phase>]

@@ -25,6 +25,7 @@ Rules that always apply:
 - The agent roles (`codebase-analyzer`, `planner`, `task-builder`, `reviewer`) are in `{{SKILLS_DIR}}/neutrino/agents/`. If you have subagents, run each role in a subagent with that file as its prompt. If you do not, read the file and perform the role yourself.
 - Without native multiple-choice questions, ask the questions as text, in the format of `{{SKILLS_DIR}}/neutrino/references/questions.md`.
 - Without isolated workspaces, Construction is sequential.
+- An intent can be built in its own git worktree, `.neutrino/worktrees/NNN-slug`, so that several intents run at the same time; Initiation asks the user. The rules are in `{{SKILLS_DIR}}/neutrino/references/worktrees.md`. If you cannot change your working directory, use absolute paths under the worktree and `git -C <worktree>`.
 - Without remote repository access, Closing shows the PR text for the user to paste.
-- If an intent is in progress in `.neutrino/intents/`, read its `STATE.md` before touching the related code.
-- When you change project files outside an intent (the current branch is not `neutrino/NNN-slug`), before ending the turn follow `{{SKILLS_DIR}}/neutrino/references/out-audit.md`: record the change in `.neutrino/out-audit/out-audit-<YYYY-MM-DD>.md` and update `.neutrino/context/` if the change makes it necessary.
+- If an intent is in progress (in `.neutrino/intents/` or in a worktree under `.neutrino/worktrees/`), read its `STATE.md` before touching the related code.
+- When you change project files outside an intent (the files are not on a `neutrino/NNN-slug` branch), before ending the turn follow `{{SKILLS_DIR}}/neutrino/references/out-audit.md`: record the change in `.neutrino/out-audit/out-audit-<YYYY-MM-DD>.md` and update `.neutrino/context/` if the change makes it necessary.

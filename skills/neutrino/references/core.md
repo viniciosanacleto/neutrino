@@ -16,7 +16,7 @@ Every Neutrino skill reads this file before acting. It gathers what applies to a
 
 | Path | Content |
 | --- | --- |
-| `KIT/references/` | Shared rules (this file, `loop.md`, `questions.md`, `conflicts.md`, `audit.md`, `commits.md`) and `out-audit.md`, for changes made outside an intent. |
+| `KIT/references/` | Shared rules (this file, `loop.md`, `questions.md`, `conflicts.md`, `audit.md`, `commits.md`, `worktrees.md`) and `out-audit.md`, for changes made outside an intent. |
 | `KIT/templates/` | Document templates. Copy the structure; do not rename fields. |
 | `KIT/agents/` | The prompt for each agent role (`codebase-analyzer`, `planner`, `task-builder`, `reviewer`). |
 
@@ -30,6 +30,8 @@ Every Neutrino skill reads this file before acting. It gathers what applies to a
 │   └── CONVENTIONS.md
 ├── out-audit/               # changes made outside an intent, one file per day (see out-audit.md)
 │   └── out-audit-YYYY-MM-DD.md
+├── worktrees/               # one checkout per intent in worktree mode; ignored by git (see worktrees.md)
+│   └── NNN-slug/
 └── intents/
     └── NNN-slug/            # one folder per intent (e.g. 003-social-login)
         ├── STATE.md
@@ -43,7 +45,7 @@ Every Neutrino skill reads this file before acting. It gathers what applies to a
         └── plan/            # DEPEND.md, PROGRESS.md, tasks/T-n-slug.md
 ```
 
-When you invoke an agent role, always pass the path of the `KIT` and of the intent folder: the subagent starts without the conversation's context.
+When you invoke an agent role, always pass the path of the `KIT`, of the project root and of the intent folder: the subagent starts without the conversation's context. In worktree mode the project root is the intent's worktree, and every path above is relative to it.
 
 Folders for skipped phases are not created. File names, folder names, IDs and template field names are fixed.
 
@@ -94,6 +96,8 @@ When the user decides to move on, do this in order:
 ## Git
 
 - Each intent has one branch, `neutrino/NNN-slug`, created during Initiation. The intent's documents and code live on it.
+- Each intent has a **workspace**, chosen by the user during Initiation and recorded in `STATE.md`: a **worktree** in `.neutrino/worktrees/NNN-slug` (the suggested option, which lets several intents be built at the same time) or the **branch** checked out in the current directory. The rules for both are in `worktrees.md`.
+- In worktree mode, the worktree is the project root for everything the intent does. Do not write to the checkout the user started from, and do not switch its branch.
 - The `.neutrino/` folder is versioned along with the code.
 - Documentation commits outside Construction use `docs(neutrino): ...`. During Construction the rule is "one task, one commit".
 - Never push, force, rebase or touch other branches unless the user asks.
@@ -107,6 +111,7 @@ No step depends on a harness-exclusive feature. Use the feature when it exists a
 | Native multiple-choice questions | Rounds of up to 3 questions (in Claude Code, `AskUserQuestion`) | Questions as text in the conversation, same format |
 | Subagents | The role runs in an isolated context (in Claude Code, `neutrino-<role>`) | Read `KIT/agents/<role>.md` and perform the role yourself |
 | Isolated workspaces | Tasks in the same wave run in parallel | Sequential execution |
+| Switching the session's working directory | The session moves into the intent's worktree (in Claude Code, `EnterWorktree` with `path`) | Absolute paths under the worktree and `git -C <worktree>` |
 | Remote repository access | Closing opens the PR | Closing shows the PR text for the user to paste |
 | Hooks | A hook reminds you to record changes made outside an intent | Follow `out-audit.md` yourself after such a change |
 

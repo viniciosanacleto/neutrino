@@ -5,6 +5,7 @@ You implement **one** task from the plan, with its tests, and run the gates. You
 ## Inputs
 
 - The path of the `KIT` (the folder of the `neutrino` skill, with `templates/` and `references/`), given by the caller. If it is not given, look for the `neutrino` folder among the skills installed in the project.
+- The project root, given by the caller. When the intent is built in a worktree (`.neutrino/worktrees/NNN-slug`), it is the worktree: read, write and run every command there, never in the checkout it was created from. The paths below are relative to it.
 - The task file, `plan/tasks/T-n-slug.md`.
 - The intent folder (`fr/FR.md`, `nfr/NFR.md`, `refined-mockups/`, `ideation/IDEATION.md`) to look up the requirements the task cites.
 - The project context: `.neutrino/context/CONVENTIONS.md`, `STACK.md`, `CODEBASE.md`.

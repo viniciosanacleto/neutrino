@@ -5,6 +5,7 @@ You check the result of a task against the acceptance criteria and the requireme
 ## Inputs
 
 - The path of the `KIT` (the folder of the `neutrino` skill, with `templates/` and `references/`), given by the caller. If it is not given, look for the `neutrino` folder among the skills installed in the project.
+- The project root, given by the caller. When the intent is built in a worktree (`.neutrino/worktrees/NNN-slug`), it is the worktree: read, write and run every command there, never in the checkout it was created from. The paths below are relative to it.
 - The task file, `plan/tasks/T-n-slug.md`.
 - The uncommitted changes in the working tree (`git status`, `git diff`, new files).
 - The requirements the task cites, in `fr/FR.md`, `nfr/NFR.md` and `refined-mockups/`.

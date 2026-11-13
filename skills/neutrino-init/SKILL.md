@@ -7,7 +7,7 @@ description: Neutrino phase 1 (Initiation). Creates the intent in .neutrino/inte
 
 Turns the user's idea into a registered intent, with a defined profile and phases. Single-pass phase.
 
-Read first: `../neutrino/references/core.md`, `audit.md` and `questions.md` (same folder).
+Read first: `../neutrino/references/core.md`, `worktrees.md`, `audit.md` and `questions.md` (same folder).
 
 **Input:** free text or the path of a file containing the idea.
 
@@ -15,14 +15,16 @@ Read first: `../neutrino/references/core.md`, `audit.md` and `questions.md` (sam
 
 ### 1. Create the intent
 
-1. Find the next number: the highest `NNN` in `.neutrino/intents/` plus one, with three digits (`001` if there is none).
-2. Create a short kebab-case slug that summarizes the idea (`social-login`).
-3. Git:
-   - If the folder is not a git repository, tell the user and offer to run `git init`; Neutrino needs git for commits and resuming.
-   - If the working tree has uncommitted changes, say so and ask how to proceed before creating the branch.
-   - Create and switch to the branch `neutrino/NNN-slug` from the current branch.
-4. Create `.neutrino/intents/NNN-slug/` and, in it, an empty `AUDIT.md` and the `STATE.md` (template in `../neutrino/templates/STATE.md`) with Initiation as the current phase. The state is created early so that a session failure in the middle of Initiation can be resumed; profile and phases are filled in at step 5.
-5. Save to `init/INIT.md` (template in `../neutrino/templates/INIT.md`) the **user's original input, unedited**. If the input was a file, copy the content verbatim and note the path. List the references cited (links, files, tickets).
+1. If the folder is not a git repository, tell the user and offer to run `git init`; Neutrino needs git for commits and resuming.
+2. Find the next number, with three digits, as described in "Numbering" in `worktrees.md`: it looks at `.neutrino/intents/`, at the existing worktrees and at the `neutrino/*` branches, because other intents may be in progress on other branches.
+3. Create a short kebab-case slug that summarizes the idea (`social-login`).
+4. **Ask where the intent will be built**, with the question in "Asking the user" in `worktrees.md`: a new worktree (option A, always the suggested one) or a common branch. Ask every time; do not assume the answer from a previous intent.
+5. Create the workspace, from the current branch (the **base branch**):
+   - **Worktree:** follow "Creating the worktree", "Working in the worktree" and "Preparing the environment" in `worktrees.md`. Uncommitted changes in the current checkout do not block: they stay there and are not part of the intent. Every step from here on happens inside the worktree.
+   - **Branch:** if the working tree has uncommitted changes, say so and ask how to proceed before creating the branch. Create and switch to the branch `neutrino/NNN-slug`.
+6. Create `.neutrino/intents/NNN-slug/` and, in it, an empty `AUDIT.md` and the `STATE.md` (template in `../neutrino/templates/STATE.md`) with Initiation as the current phase, the base branch and the workspace. The state is created early so that a session failure in the middle of Initiation can be resumed; profile and phases are filled in at step 5 of this phase.
+7. Record the workspace choice in `AUDIT.md` (`Actor: User`), with the options presented, and what was done to prepare the environment.
+8. Save to `init/INIT.md` (template in `../neutrino/templates/INIT.md`) the **user's original input, unedited**. If the input was a file, copy the content verbatim and note the path. List the references cited (links, files, tickets).
 
 ### 2. Project context
 
@@ -79,4 +81,4 @@ Present to the user the profile, the proposed phases and the skipped ones, and a
 
 ## Resuming
 
-If `STATE.md` points to Initiation, check what already exists (`INIT.md` with the original input? with the summary? `context/`? profile filled in?) and continue from the first missing step.
+If `STATE.md` points to Initiation, check what already exists (the workspace recorded in `STATE.md`, and the worktree itself when that is the mode? `INIT.md` with the original input? with the summary? `context/`? profile filled in?) and continue from the first missing step.

@@ -29,7 +29,7 @@ Phases 2 to 5 are optional: during Initiation the agent proposes which ones make
 
 ## Requirements
 
-- **git.** Neutrino creates one branch per intent and makes commits.
+- **git.** Neutrino creates one branch per intent and makes commits. Each intent can be built in its own [worktree](#several-intents-at-once), which needs git 2.5 or later.
 - **bash**, to run the installer (macOS, Linux or WSL).
 - An agent harness: **Claude Code** (native support) or any agent that reads an `AGENTS.md`.
 
@@ -104,6 +104,7 @@ Without native harness features, Neutrino still works through fallbacks:
 | Multiple-choice questions | Used for rounds of up to 3 questions | Questions as text, in the same format |
 | Subagents | Each role runs in an isolated context | The main agent performs the role |
 | Isolated workspaces | Tasks in the same wave run in parallel | Sequential execution |
+| Switching the working directory | The session moves into the intent's worktree | The agent uses absolute paths under the worktree |
 | Commands | `/neutrino new` | You ask for "neutrino new ..." |
 | Remote repository access | Closing opens the PR | Closing shows the PR text |
 | Hooks | Changes outside Neutrino are always recorded | The agent records them by following a rule in `AGENTS.md` |
@@ -155,7 +156,7 @@ What to expect:
 
 ## Existing project (brownfield)
 
-1. Leave the working tree clean (commit or stash your changes) and check out the branch the feature should start from.
+1. Check out the branch the feature should start from. Commit what the feature depends on: an intent built in a worktree starts from the last commit, and an intent built as a common branch asks for a clean working tree.
 
 2. Install Neutrino (see [Installation](#installation)).
 
@@ -167,6 +168,7 @@ What to expect:
 
 What to expect:
 
+- The agent asks where to build the intent: in a **new worktree** (the suggested option) or as a **common branch** in the current directory. See [Several intents at once](#several-intents-at-once).
 - In the **first intent**, the agent analyzes the code and creates `.neutrino/context/` with three files: `CODEBASE.md` (module map), `STACK.md` (technologies and commands) and `CONVENTIONS.md` (project patterns). It is worth reading and correcting these files: every phase starts from them.
 - In later intents, the context is updated only with what changed since the last analyzed commit.
 - The intent is classified as a **backend**, **frontend** or **full-stack** feature. Backend features skip the Mockup phase by default.
@@ -208,6 +210,25 @@ If a task fails the gates three times in a row, or depends on something the docu
 
 To find a task's commit: `git log --grep "T-4"`.
 
+### Several intents at once
+
+When an intent starts, the agent asks where to build it:
+
+| Option | What happens |
+| --- | --- |
+| **New worktree** (suggested) | The agent creates `.neutrino/worktrees/NNN-slug`, a separate directory with the branch `neutrino/NNN-slug` checked out, and works there. Your current directory keeps its branch and its files. |
+| **Common branch** | The agent switches the current directory to the branch `neutrino/NNN-slug`. One intent at a time can use it. |
+
+With worktrees you can build several intents in parallel: open one agent session per intent and run `/neutrino new` or `/neutrino resume NNN-slug` in each. `/neutrino status` lists all of them, wherever they live.
+
+What to know about worktrees:
+
+- The folder `.neutrino/worktrees/` is ignored by git through its own `.gitignore`; nothing in your versioned files changes.
+- A new worktree only has the versioned files. The agent installs the dependencies and asks before copying local configuration (such as `.env`) from your main directory.
+- If your tools scan the whole repository without honoring `.gitignore` (some test runners, linters and editors), exclude `.neutrino/worktrees/` in their configuration.
+- The pull request is opened from the intent branch itself; no other branch is created. At Closing the agent asks whether to remove the worktree. Removing it deletes only the directory: the branch and the commits stay.
+- To remove one by hand: `git worktree remove .neutrino/worktrees/NNN-slug`.
+
 ### Changes outside Neutrino
 
 You can still ask the agent for a change without starting an intent. When Neutrino is installed and the current branch is not an intent branch (`neutrino/NNN-slug`), the agent ends the turn by:
@@ -236,6 +257,8 @@ In Claude Code this is enforced by a hook that compares the working tree at the 
 │   └── CONVENTIONS.md
 ├── out-audit/                # changes made outside an intent, one file per day
 │   └── out-audit-2026-11-12.md
+├── worktrees/                # one checkout per intent built in a worktree; ignored by git
+│   └── 002-export-csv/
 └── intents/
     └── 001-social-login/
         ├── STATE.md          # current phase and round; this is where the agent resumes from
@@ -251,7 +274,7 @@ In Claude Code this is enforced by a hook that compares the working tree at the 
 
 Version the `.neutrino/` folder along with the code. It is what lets an intent be resumed on another machine, by another person or in another harness.
 
-Each intent lives on its own branch, `neutrino/NNN-slug`, created during Initiation. The agent only pushes and opens the pull request if you accept, at Closing.
+Each intent lives on its own branch, `neutrino/NNN-slug`, created during Initiation, and that branch is checked out either in a worktree under `.neutrino/worktrees/` or in the project directory, as you choose. The agent only pushes and opens the pull request if you accept, at Closing.
 
 ## Package structure
 

@@ -7,7 +7,7 @@ description: Orchestrates the Neutrino framework, which takes an idea to committ
 
 You guide an **intent** (the user's intention to build something) through the Neutrino phases. This skill does not do the work of the phases: it reads the state, decides which phase skill to load, and handles the commands.
 
-Before any command, read `references/core.md`. The other references (`loop.md`, `questions.md`, `conflicts.md`, `audit.md`, `commits.md`) are read by the phase skills when they need them.
+Before any command, read `references/core.md` and `references/worktrees.md`: an intent may live in its own worktree, outside the directory you are in. The other references (`loop.md`, `questions.md`, `conflicts.md`, `audit.md`, `commits.md`) are read by the phase skills when they need them.
 
 ## Commands
 
@@ -17,33 +17,33 @@ The user can use the command (`/neutrino new ...`) or ask in natural language ("
 
 Starts an intent. Load the `neutrino-init` skill, passing the user's input exactly as it came. If the input is empty, ask for the idea in one sentence before loading.
 
-If an intent is already in progress, say which one and ask whether the user really wants to open another in parallel or resume the existing one.
+If other intents are in progress, say which ones in one line and carry on: intents can run in parallel, each in its own worktree. Initiation asks the user where the new one will be built. If an intent in progress occupies the current checkout (branch mode, and its branch is the current one), say that the new intent can only run alongside it in a worktree.
 
 ### `resume [NNN-slug]`
 
 Resumes an intent.
 
-1. List the folders in `.neutrino/intents/` and read the `STATE.md` of each one that is not Done.
-2. Only one in progress: resume it. More than one and no argument: show the list and ask which.
-3. Check that the current branch is the intent's (`neutrino/NNN-slug`). If it is not, say so and ask before switching; do not switch with uncommitted changes in the working tree.
+1. List the intents as described in "Finding the intents" in `worktrees.md` (the worktrees on `neutrino/*` branches plus `.neutrino/intents/` of the current checkout) and read the `STATE.md` of each one that is not Done.
+2. Only one in progress: resume it. More than one and no argument: show the list, with the workspace of each, and ask which.
+3. Go to the intent's workspace, following "Resuming" in `worktrees.md`: switch into its worktree (recreating it if it no longer exists) or, in branch mode, check that the current branch is the intent's and ask before switching.
 4. Say in two or three lines where the intent stopped (phase, round, next step from `STATE.md`).
 5. If `STATE.md` records a reopening in progress, resume the reopening procedure in `references/conflicts.md`. Otherwise, load the current phase's skill (table in `core.md`); each skill knows how to resume midway.
 
 ### `status [NNN-slug]`
 
-Read-only. Show, for the requested intent or for all that are not done:
+Read-only. Find the intents as in `resume` (step 1), reading the files of each one from its own workspace without switching into it. Show, for the requested intent or for all that are not done:
 
-- intent, profile, current phase and round;
+- intent, profile, workspace (worktree path or branch), current phase and round;
 - phases done, planned and skipped;
 - if there is a plan: task count by status and the blocked ones with the reason (`plan/PROGRESS.md`);
 - open items and accepted conflicts, if any;
 - the next step.
 
-Do not change any file.
+Do not change any file, and do not create, enter or remove a worktree.
 
 ### `reopen <phase>`
 
-Reopens an earlier phase of the intent in progress, on the user's initiative. Valid at any time, including during Construction.
+Reopens an earlier phase of the intent in progress, on the user's initiative. Valid at any time, including during Construction. With more than one intent in progress, the intent is the one of the workspace you are in; if you are in none, ask which and go to its workspace as in `resume`.
 
 1. Confirm the phase and ask, if the user did not say, what they want to revisit.
 2. Follow the **Reopening procedure** in `references/conflicts.md`.
@@ -52,7 +52,7 @@ If the requested phase was skipped during Initiation, reopening means running it
 
 ### No command
 
-- An intent is in progress: show the short status and offer to resume.
+- One or more intents are in progress: show the short status of each and offer to resume.
 - None exists: explain in two lines what Neutrino does and ask for the idea for `new`.
 
 ## Orchestration rules
@@ -60,4 +60,4 @@ If the requested phase was skipped during Initiation, reopening means running it
 - **`STATE.md` rules.** Do not infer the phase from the conversation; read the file.
 - **One phase at a time.** Each phase skill ends by updating the state and loading the next one. If the harness does not load skills by itself, read the next phase's `SKILL.md` in the sibling folder (`../neutrino-<phase>/SKILL.md`).
 - **The user can interrupt.** Between phases, they can stop, skip a planned phase or include a skipped one. Record the change in `STATE.md` and in the audit.
-- **No `.neutrino/`:** only `new` makes sense. For `resume`, `status` and `reopen`, say there are no intents in this project.
+- **No `.neutrino/` and no intent worktree:** only `new` makes sense. For `resume`, `status` and `reopen`, say there are no intents in this project.

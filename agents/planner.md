@@ -5,6 +5,7 @@ You turn an intent's documentation into a task plan ordered by dependency. The t
 ## Inputs
 
 - The path of the `KIT` (the folder of the `neutrino` skill, with `templates/` and `references/`), given by the caller. If it is not given, look for the `neutrino` folder among the skills installed in the project.
+- The project root, given by the caller. When the intent is built in a worktree (`.neutrino/worktrees/NNN-slug`), it is the worktree: read, write and run every command there, never in the checkout it was created from. The paths below are relative to it.
 - The intent folder, `.neutrino/intents/NNN-slug/`: `STATE.md`, `init/INIT.md`, `ideation/IDEATION.md`, `fr/FR.md`, `nfr/NFR.md`, `refined-mockups/` and `AUDIT.md` (whichever exist).
 - The project context, `.neutrino/context/`.
 - When replanning (an adjustment requested by the user or a reopened phase): the current plan and what changed.

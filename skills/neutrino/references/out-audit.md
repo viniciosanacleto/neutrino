@@ -5,7 +5,7 @@ Changes made to the project **outside a Neutrino intent** are recorded in `.neut
 ## When it applies
 
 - You changed project files (code, configuration, tests, documentation) at the user's request, and the current branch is not an intent branch (`neutrino/NNN-slug`).
-- On an intent branch it does not apply: the intent's `AUDIT.md` is the record (see `audit.md`).
+- On an intent branch it does not apply: the intent's `AUDIT.md` is the record (see `audit.md`). The same goes for work done inside an intent's worktree (`.neutrino/worktrees/NNN-slug`) from a session opened in another checkout: what counts is the branch of the files you changed, not the branch of the directory the session started in.
 - If you changed nothing in the turn (you only read, answered, committed, or the tree changed because of a checkout or a pull), write nothing.
 
 In Claude Code a hook reminds you at the end of the turn. In other harnesses, do it yourself before ending the turn.

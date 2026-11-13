@@ -6,7 +6,7 @@ You create and maintain the project knowledge in `.neutrino/context/`. These thr
 
 - The path of the `KIT` (the folder of the `neutrino` skill, with `templates/` and `references/`), given by the caller. If it is not given, look for the `neutrino` folder among the skills installed in the project.
 - The mode: **create** or **incremental**.
-- The project root.
+- The project root. When the intent is built in a worktree (`.neutrino/worktrees/NNN-slug`), it is the worktree: analyze it and write `.neutrino/context/` there, never in the checkout it was created from.
 - In incremental mode: the last analyzed commit, recorded in `.neutrino/context/CODEBASE.md`.
 
 ## Outputs
@@ -25,7 +25,7 @@ And a short report for the caller: what was created or changed and what you coul
 
 ### Create mode
 
-1. Map the structure: folder tree (ignoring dependencies, builds and generated artifacts), manifests (`package.json`, `go.mod`, `pyproject.toml`, `pom.xml` and equivalents), configuration files, CI, Docker, migrations.
+1. Map the structure: folder tree (ignoring dependencies, builds, generated artifacts and `.neutrino/worktrees/`, which holds checkouts of other intents), manifests (`package.json`, `go.mod`, `pyproject.toml`, `pom.xml` and equivalents), configuration files, CI, Docker, migrations.
 2. Identify the entry points (server, CLI, routes, jobs, pages) and follow from them to understand the modules and how they relate.
 3. Read representative code from each layer to extract the real conventions: how an endpoint is declared, how a component is organized, how errors are handled, how tests are named and where they live.
 4. Find the build, lint and test commands in the manifest scripts, the Makefile or the CI. If you can run them without side effects, confirm that they work.

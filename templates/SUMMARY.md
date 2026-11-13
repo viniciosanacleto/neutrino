@@ -2,6 +2,7 @@
 
 - **Profile**: [profile]
 - **Branch**: neutrino/[NNN-slug]
+- **Base branch**: [branch the intent started from]
 - **Period**: [start date] to [closing date]
 - **Final gates**: build [ok | failed], lint [ok | failed], tests [n passing, n failing]
 

@@ -7,7 +7,7 @@ description: Neutrino phase 8 (Closing). Builds the FR-n, T-n and test coverage 
 
 Confirms that the intent delivered what it promised and leaves the project ready for the next one. Single-pass, mandatory phase.
 
-Read first, in `../neutrino/references/`: `core.md`, `audit.md`, `commits.md`.
+Read first, in `../neutrino/references/`: `core.md`, `worktrees.md`, `audit.md`, `commits.md`.
 
 ## Steps
 
@@ -46,13 +46,19 @@ Generate `SUMMARY.md` in the intent root (template in `../neutrino/templates/SUM
 
 Offer to open the pull request. Only push and open the PR if the user accepts.
 
-- **With remote repository access** (for example, an authenticated `gh`): push the branch `neutrino/NNN-slug` and open the PR against the branch it started from.
+- **With remote repository access** (for example, an authenticated `gh`): push the branch `neutrino/NNN-slug` and open the PR against the base branch recorded in `STATE.md` (for an intent with no `Base branch` field, ask the user).
 - **Without access:** show the PR title and body for the user to paste.
 
+The pull request always comes from the intent branch itself, in worktree mode too: the worktree is only a directory where that branch is checked out, so no other branch is created for the PR.
+
 Title in Conventional Commits (`feat(auth): social login`). Body: what was delivered, the summarized coverage matrix, the pending items and the path of `SUMMARY.md`.
+
+### 7. Worktree
+
+Only when the intent's workspace is a worktree. Ask the user whether to remove it now, and follow "Removing the worktree" in `worktrees.md`: remove only if they accept and it has no uncommitted changes, never with `--force`. The branch and its commits stay; only the directory goes away. If they decline, or if they may still need it (review fixes on the PR), keep it and tell them the path and the command to remove it later.
 
 ## Output
 
 `SUMMARY.md`, updated `.neutrino/context/` and `STATE.md` as Done.
 
-End by telling the user, in a few lines: what was delivered, how many requirements are covered, what is pending and where the summary is.
+End by telling the user, in a few lines: what was delivered, how many requirements are covered, what is pending, where the summary is and, in worktree mode, whether the worktree was kept or removed.

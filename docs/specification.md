@@ -124,11 +124,12 @@ Turns the user's idea into a registered intent, with a defined profile and phase
 
 - **Input:** free text or the path of a file containing the idea.
 - **Steps:**
-  1. Creates the intent folder and saves to `INIT.md` the user's original input, unedited, and the references cited.
-  2. If the project has code and `.neutrino/context/` does not exist, invokes the code analysis agent to create it. If it already exists, updates it incrementally from the git diff since the last commit recorded in the context.
-  3. Summarizes in `INIT.md` the idea and the parts of the code it should touch.
-  4. Classifies the profile, proposes the phases and asks the user for confirmation.
-  5. Creates `STATE.md`.
+  1. Asks the user where the intent will be built, a new worktree (suggested) or a common branch, and creates the branch `neutrino/NNN-slug` in that workspace (see [Workspaces](#workspaces)).
+  2. Creates the intent folder and saves to `INIT.md` the user's original input, unedited, and the references cited.
+  3. If the project has code and `.neutrino/context/` does not exist, invokes the code analysis agent to create it. If it already exists, updates it incrementally from the git diff since the last commit recorded in the context.
+  4. Summarizes in `INIT.md` the idea and the parts of the code it should touch.
+  5. Classifies the profile, proposes the phases and asks the user for confirmation.
+  6. Creates `STATE.md`.
 - **Output:** `INIT.md`, `STATE.md` and the updated project context.
 
 ### 2. Ideation (loop)
@@ -185,7 +186,7 @@ Turns all the documentation into a task plan ordered by dependency.
 
 Implements the tasks, one by one, in topological order, without user intervention unless something blocks.
 
-- **Branch:** one per intent, `neutrino/NNN-slug`.
+- **Branch:** one per intent, `neutrino/NNN-slug`, checked out in the intent's workspace (a worktree or the project directory). Every command of the phase runs there.
 - **Cycle of each task:**
   1. Marks the task as In progress in `PROGRESS.md`.
   2. Implements the code.
@@ -206,7 +207,8 @@ Confirms that the intent delivered what it promised and leaves the project ready
   2. Runs the full suite one last time.
   3. Updates `.neutrino/context/` with what changed (stack, conventions, new modules) and records the last commit.
   4. Generates `SUMMARY.md`.
-  5. Offers to open the pull request, if the harness has access to the remote repository.
+  5. Offers to open the pull request, if the harness has access to the remote repository. The PR goes from the intent branch to the base branch recorded in `STATE.md`.
+  6. In worktree mode, asks the user whether to remove the worktree. The branch is kept.
 - **Output:** `SUMMARY.md` with what was delivered, the coverage matrix, the main decisions and what is pending or blocked. `STATE.md` moves to Done.
 
 ## Question format
@@ -289,7 +291,7 @@ The user can ask the agent for a change without starting an intent. When Neutrin
 ---
 ```
 
-The agent does not commit these files; they stay in the working tree for the user to commit along with the change. On an intent branch nothing is recorded here: the intent's `AUDIT.md` is the record.
+The agent does not commit these files; they stay in the working tree for the user to commit along with the change. On an intent branch, or inside an intent's worktree, nothing is recorded here: the intent's `AUDIT.md` is the record.
 
 In Claude Code this is enforced by a hook: it takes a fingerprint of the working tree when the user sends a prompt and compares it when the agent is about to stop; if the tree changed, the agent is sent back once to write the entry. In harnesses without hooks, the same rule is in the `AGENTS.md` block.
 
@@ -303,6 +305,8 @@ In Claude Code this is enforced by a hook: it takes a fingerprint of the working
 │   └── CONVENTIONS.md
 ├── out-audit/
 │   └── out-audit-2026-11-12.md
+├── worktrees/
+│   └── 002-slug/
 └── intents/
     └── 001-slug/
         ├── STATE.md
@@ -400,6 +404,7 @@ The skills use the `SKILL.md` format (frontmatter with `name` and `description`,
 | Native multiple-choice questions | Used for rounds of up to 3 questions | Questions as text in the chat, same format |
 | Subagents | Agent roles run in an isolated context | The skill performs the role in the main conversation, reading the same prompt |
 | Isolated workspaces | Tasks in a wave run in parallel | Sequential execution |
+| Switching the session's working directory | The session moves into the intent's worktree | Absolute paths under the worktree and `git -C` |
 | Commands (slash commands) | `/neutrino new`, `/neutrino resume` | The user asks by the skill's name |
 | Remote repository access | Closing opens the PR | Closing shows the PR text for the user to paste |
 | Hooks | Changes outside an intent are detected and the agent is sent back to record them | The agent records them by following the rule in `AGENTS.md` |
@@ -447,6 +452,26 @@ Refs: T-4, FR-5, FR-6
 ### Versioning
 
 The `.neutrino/` folder is versioned in git along with the code. This keeps the documentation, the audit and the progress in sync with every commit, and lets another person or another harness resume the intent.
+
+### Workspaces
+
+Each intent has one branch, `neutrino/NNN-slug`, and one workspace where that branch is checked out. During Initiation the agent asks the user which one to use; the worktree is always the suggested option.
+
+| Workspace | Where the branch is checked out | Parallel intents |
+| --- | --- | --- |
+| Worktree (suggested) | `.neutrino/worktrees/NNN-slug`, created with `git worktree add` from the current commit | Yes, one session per intent |
+| Branch | The project directory, which switches to the intent branch | No, one at a time in that directory |
+
+- The choice goes in the `Workspace` field of `STATE.md`, together with the `Base branch` the intent started from, and in the audit.
+- `.neutrino/worktrees/` is ignored by git through a `.gitignore` of its own (`*`), so no versioned file changes.
+- In worktree mode the worktree is the project root for the intent: documents, code, gates and commits. The directory the user started from is not written to and does not change branch.
+- Because intents live on parallel branches, the next intent number is the highest among `.neutrino/intents/`, the existing worktrees and the `neutrino/*` branches, plus one.
+- A new worktree has only the versioned files. The agent installs the dependencies and asks before copying ignored local configuration into it.
+- The list of worktrees is read from `git worktree list`, never from a saved absolute path. When an intent is resumed where its worktree does not exist (another machine, or it was removed), the worktree is recreated from the branch.
+- The pull request is opened from the intent branch in both modes; no other branch is created. At Closing the agent asks whether to remove the worktree, and removes only the directory.
+- Intents created before this choice existed have no `Workspace` field and are treated as branch mode.
+
+The rules the skills follow are in `skills/neutrino/references/worktrees.md`.
 
 ### Language
 
