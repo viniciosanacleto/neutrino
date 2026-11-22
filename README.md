@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="Neutrino logo" width="200">
+  <img src="assets/neutrino-logo.png" alt="Neutrino logo" width="400">
 </p>
 
 # Neutrino
